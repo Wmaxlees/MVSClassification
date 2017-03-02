@@ -15,11 +15,6 @@ IsTimeSeriesSelected,boolean,TRUE
 IsPatternBasedSelected,boolean,TRUE
 IsEDSelectedForTimeSeries,boolean,TRUE
 IsFirstNSelectedForTimeSeries,boolean,TRUE
-MinSupport,int,100
-SlidingWinSize,int,5
-X,int,10
-Y,int,10
-Z,int,10
 IsAccuracySelected,boolean,TRUE
 IsMemorySelected,boolean,TRUE
 IsTimeToTrainSelected,boolean,TRUE

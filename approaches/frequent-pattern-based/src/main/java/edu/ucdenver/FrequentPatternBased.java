@@ -1,21 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package edu.ucdenver.ApproachImplementation;
+package edu.ucdenver;
 
-/**
- *
- * @author siddh
- */
-public class FrequentPatternBased { /*extends IApproachInterface {
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class FrequentPatternBased extends IApproachInterface {
+    public FrequentPatternBased () {
+        this.loadConfigurationFile(this.getName());
+    }
 
     public String toWrite = getFirstLine();
-
-    public FrequentPatternBased () {
-        super();
-    }
 
     public String getFirstLine() {
         String toReturn = "";
@@ -75,9 +68,9 @@ public class FrequentPatternBased { /*extends IApproachInterface {
     public double getBlockLocation(String[] refpoint, String[] xyz, HashMap<String, Double> attributes) {
         double refZ = Double.parseDouble(refpoint[2]);
         double targetX = Double.parseDouble(xyz[0]), targetY = Double.parseDouble(xyz[1]), targetZ = Double.parseDouble(xyz[2]);
-        double xdiv = Double.parseDouble("" + GlobalConfig.extraParameters.get("X"));
-        double ydiv = Double.parseDouble("" + GlobalConfig.extraParameters.get("Y"));
-        double zdiv = Double.parseDouble("" + GlobalConfig.extraParameters.get("Z"));
+        double xdiv = this.config.getInt("X");
+        double ydiv = this.config.getInt("Y");
+        double zdiv = this.config.getInt("Z");
         double xrow, ycol, zrow;
         double zMin = refZ - (double) attributes.get("ZRange");
         double zMax = refZ + (double) attributes.get("ZRange");
@@ -103,7 +96,7 @@ public class FrequentPatternBased { /*extends IApproachInterface {
         temp += attributes.get("MinX") + "," + attributes.get("MaxY") + "," + (refpoint[2] + (double) attributes.get("ZRange")) + ",";
         temp += attributes.get("MaxX") + "," + attributes.get("MaxY") + "," + (refpoint[2] + (double) attributes.get("ZRange")) + ",";
 
-        temp += GlobalConfig.extraParameters.get("X") + "," + GlobalConfig.extraParameters.get("Y") + "," + GlobalConfig.extraParameters.get("Z") + ",\r\n";
+        temp += this.config.getInt("X") + "," + this.config.getInt("Y") + "," + this.config.getInt("Z") + ",\r\n";
         return temp;
     }
 
@@ -125,7 +118,7 @@ public class FrequentPatternBased { /*extends IApproachInterface {
     }
 
     public HashMap<String, Integer> applyMinSup(HashMap<String, Integer> incoming) {
-        double minSup = Double.parseDouble("" + GlobalConfig.extraParameters.get("MinSupport"));
+        double minSup = this.config.getInt("MinimumSupport");
         Object[] entries = incoming.keySet().toArray();
         for (int i = 0; i < entries.length; i++) {
             if (incoming.get(entries[i]) < minSup) {
@@ -206,7 +199,7 @@ public class FrequentPatternBased { /*extends IApproachInterface {
 
     public HashMap<String, Integer> performFrequencyCount(HashMap<String, Integer> currentSet, ArrayList<HashMap> blockRepresentation) {
         String[] currentPatterns = currentSet.keySet().toArray(new String[0]);
-        double winsize = Double.parseDouble("" + GlobalConfig.extraParameters.get("SlidingWinSize"));
+        double winsize = this.config.getInt("SidingWindowSize");
         for (int i = 0; i < currentPatterns.length; i++) {
             String[] jtArr = currentPatterns[i].split("=");
             for (int j = 0; j < blockRepresentation.size() - winsize; j++) {
@@ -241,7 +234,7 @@ public class FrequentPatternBased { /*extends IApproachInterface {
 
     public HashMap<String, HashMap> applyMinItemSetSize(HashMap<String, HashMap> patterns) {
         String[] individuals = patterns.keySet().toArray(new String[0]);
-        int minItemSetSize = Integer.parseInt("" + GlobalConfig.extraParameters.get("ItemSetSize"));
+        int minItemSetSize = this.config.getInt("ItemSetSize");
         for (String name : individuals) {
             HashMap hm = patterns.get(name);
             Object[] keys = hm.keySet().toArray();
@@ -551,6 +544,7 @@ public class FrequentPatternBased { /*extends IApproachInterface {
     @Override
     public String getFeaturesToWrite() {
         return toWrite;
-    }*/
+    }
+
 
 }
