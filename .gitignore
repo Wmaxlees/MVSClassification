@@ -1,2 +1,13 @@
-/nbproject/private/
-/dist/
+# Linux stuff
+**/*.swp
+
+# Netbeans
+nbproject/
+
+# Idea
+**/.idea
+**/*.iml
+
+# Build Stuff
+**/target
+mvsui/bin/*.jar
