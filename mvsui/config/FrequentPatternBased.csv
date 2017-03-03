@@ -1,6 +1,0 @@
-X,int,10
-Y,int,10
-Z,int,10
-MinimumSupport,int,100
-SlidingWindowSize,int,5
-ItemSetSize,int,100

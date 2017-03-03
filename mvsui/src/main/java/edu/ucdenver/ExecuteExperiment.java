@@ -7,9 +7,8 @@ package edu.ucdenver;
 
 import edu.ucdenver.Misc.ApproachLoader;
 import edu.ucdenver.Misc.GlobalConfig;
-import edu.ucdenver.Misc.DatasetHolder;
+import edu.ucdenver.Misc.Data;
 import edu.ucdenver.Misc.UtilityClass;
-import edu.ucdenver.UI.MainWindowAttemptOne;
 
 import java.io.*;
 import java.util.*;
@@ -20,55 +19,46 @@ import java.util.*;
  */
 public class ExecuteExperiment {
 
-    public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
-        //Arguments
-        /*
-         1. Whether UI or NONUI
-         2. CSV configuration file
-         */
-        if (args.length != 1) {
-            System.out.println("Incorrect number of arguments");
-            System.out.println("Argument 1 should indicate whether or not UI is to be instantiated. Value must be \"UI\" or \"NOUI\"");
-            System.out.println("Please specify the correct arguments and try again.");
-        } else {
-            if (args[0].equals("UI")) {
-                System.out.println("Launching UI");
-                MainWindowAttemptOne.dir = args[1];
-                MainWindowAttemptOne.main(args);
-            } else {
-                System.out.println("Starting Evaluation");
+    private static ApproachLoader approachLoader;
+    private static Data data;
 
-                System.out.println("Attempting to load approaches");
-                ApproachLoader.getInstance();
+    public static void main (String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+        System.out.println("Starting Evaluation\n------------------\n");
 
-                System.out.println("Attempting to load global config file");
-                GlobalConfig.getInstance();
+        initializeExperiments();
+        executeExperiments();
+    }
 
-                executeExperiments();
-            }
+    public static void initializeExperiments () {
+        System.out.println("Attempting to load global config file...");
+        GlobalConfig.getInstance();
+
+        System.out.println("Attempting to load approaches and their config files...\n");
+        approachLoader = new ApproachLoader();
+
+        try {
+            System.out.println("\nLoading data set...\n");
+            data = new Data();
+            data.getDataSet();
+        } catch (FileNotFoundException e) {
+            System.err.println("Failed to load data set");
+            e.printStackTrace(System.err);
         }
-
     }
 
     public static void executeExperiments() throws IOException {
-        GlobalConfig.applyHashMap(GlobalConfig.extraParameters);
         HashMap<String, String> tempHm = new HashMap<>();
-        //--------------------------------------------------------------------------------------
-//        UtilityClass.loadSelectedSeries((String) GlobalConfig.extraParameters.get("SeriesToConsider"));
-        UtilityClass.loadExtraParameters();
-        //--------------------------------------------------------------------------------------
-        DatasetHolder.getDataSet();
 
         // Perform execution of approaches
-        for (IApproachInterface approach : ApproachLoader.getInstance().getApproaches()) {
+        for (IApproachInterface approach : approachLoader.getApproaches()) {
             System.out.println("Executing " + approach.getName());
             String temp;
             long tStart = System.currentTimeMillis();
-            HashMap learningModel = approach.trainApproach(DatasetHolder.trainingIndividuals);
+            HashMap learningModel = approach.trainApproach(data.getTrainingSet());
             double learningTime = System.currentTimeMillis() - tStart;
             double sizeOfModel = UtilityClass.getMemoryRequiredByLearningModule(learningModel);
             tStart = System.currentTimeMillis();
-            Accuracy tempAcc = approach.testDataSetUsingApproach(learningModel, DatasetHolder.testingIndividuals);
+            Accuracy tempAcc = approach.testDataSetUsingApproach(learningModel, data.getTestingSet());
             double testingTime = System.currentTimeMillis() - tStart;
             temp = "" + tempAcc.calculate() + "," + sizeOfModel + "," + learningTime + "," + testingTime;
             tempHm.put(approach.getName(), temp);
@@ -76,34 +66,35 @@ public class ExecuteExperiment {
 
 
         System.out.println("All approaches have finished execution and evaluation. Generating Results file.");
-        PrintWriter pw = new PrintWriter(new File("d:/Results"));
+        String resultsFolderPath = System.getProperty("user.dir") + "/results";
+        PrintWriter pw = new PrintWriter(new File(resultsFolderPath + "/results.csv"));
         pw.write("Approaches,");
-        for (IApproachInterface approach : GlobalConfig.approaches) {
+        for (IApproachInterface approach : approachLoader.getApproaches()) {
             pw.write(approach.getName() + ",");
         }
         pw.write("\r\n");
         pw.write("Accuracy,");
-        for (IApproachInterface approach : GlobalConfig.approaches) {
+        for (IApproachInterface approach : approachLoader.getApproaches()) {
             pw.write(((String) tempHm.get(approach.getName())).split(",")[0] + ",");
         }
         pw.write("\r\n");
         pw.write("MemoryRequired,");
-        for (IApproachInterface approach : GlobalConfig.approaches) {
+        for (IApproachInterface approach : approachLoader.getApproaches()) {
             pw.write(((String) tempHm.get(approach.getName())).split(",")[1] + ",");
         }
         pw.write("\r\n");
         pw.write("TimeToTrain,");
-        for (IApproachInterface approach : GlobalConfig.approaches) {
+        for (IApproachInterface approach : approachLoader.getApproaches()) {
             pw.write(((String) tempHm.get(approach.getName())).split(",")[2] + ",");
         }
         pw.write("\r\n");
         pw.write("TimeToTest,");
-        for (IApproachInterface approach : GlobalConfig.approaches) {
+        for (IApproachInterface approach : approachLoader.getApproaches()) {
             pw.write(((String) tempHm.get(approach.getName())).split(",")[3] + ",");
         }
         pw.write("\r\n");
         pw.write("ExperimentConfiguration,\r\nApproach Class Names,\r\n");
-        for (IApproachInterface approach : GlobalConfig.approaches) {
+        for (IApproachInterface approach : approachLoader.getApproaches()) {
             pw.write(approach.getName() + ",\r\n");
         }
         pw.write("End of Approaches,\r\n");
@@ -113,7 +104,7 @@ public class ExecuteExperiment {
         }
         pw.write("EndOfConfiguration,\r\n");
         pw.write("ClassificationResults,\r\n");
-        for (IApproachInterface a : GlobalConfig.approaches) {
+        for (IApproachInterface a : approachLoader.getApproaches()) {
             pw.write(a.getName() + ",\r\n");
             String[][] results = a.getActualAndPredicted();
             for (String[] result : results) {
@@ -125,9 +116,9 @@ public class ExecuteExperiment {
         pw.write("EndOfClassificationResults,\r\n");
 
         pw.close();
-        for (IApproachInterface temp : GlobalConfig.approaches) {
-            System.out.println("Writing " + temp.getName() + ".csv at " + new File(temp.getName() + ".csv").getAbsolutePath());
-            pw = new PrintWriter(new File(temp.getName() + ".csv"));
+        for (IApproachInterface temp : approachLoader.getApproaches()) {
+            System.out.println("Writing results: " + resultsFolderPath + "/" + temp.getName() + ".csv");
+            pw = new PrintWriter(new File(resultsFolderPath + "/" + temp.getName() + ".csv"));
             pw.write(temp.getFeaturesToWrite());
             pw.close();
         }

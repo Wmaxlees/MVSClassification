@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.*;
 
 public class Individual {
+    private String name;
+    private ArrayList<HashMap> frames;
+
     public Individual (String folder, int fileCount, int numberOfJoints) throws FileNotFoundException {
         frames = new ArrayList<>();
 
@@ -19,20 +22,18 @@ public class Individual {
 
         for (int i = 0; i < fileCount; i++) {
             int selected = (int) Math.abs(Math.random() * files.length);
-            addFramesForThisIndividual(files[selected]);
+            addFramesForThisIndividual(files[selected], numberOfJoints);
         }
-
-        this.numberOfJoints = numberOfJoints;
     }
 
-    public void addFramesForThisIndividual (File selectedFile) throws FileNotFoundException {
+    public void addFramesForThisIndividual (File selectedFile, int mvsSize) throws FileNotFoundException {
         Scanner sc = new Scanner(selectedFile);
         HashMap<String, String> hm = new HashMap<>();
         int counter = 0;
         String[] temp;
 
         while (sc.hasNext()) {
-            if (counter >= this.numberOfJoints) {
+            if (counter >= mvsSize) {
                 this.frames.add(hm);
                 counter = 0;
                 hm = new HashMap<>();
@@ -62,7 +63,12 @@ public class Individual {
         return this.frames.size();
     }
 
-    private String name;
-    private ArrayList<HashMap> frames;
-    private int numberOfJoints;
+    public String toString () {
+        String result = this.name + "\n-------------\n";
+        for (HashMap map : this.frames) {
+            result += map.toString();
+        }
+
+        return result;
+    }
 }

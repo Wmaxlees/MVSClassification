@@ -14,14 +14,6 @@ import java.util.ServiceLoader;
  * Created by max on 3/2/17.
  */
 public class ApproachLoader {
-    public static ApproachLoader getInstance () {
-        if (ApproachLoader.s_approachLoader == null) {
-            ApproachLoader.s_approachLoader = new ApproachLoader();
-        }
-
-        return ApproachLoader.s_approachLoader;
-    }
-
     public int getNumberOfApproaches () {
         return this.m_approaches.size();
     }
@@ -30,10 +22,9 @@ public class ApproachLoader {
         return this.m_approaches;
     }
 
-    private static ApproachLoader s_approachLoader;
     private ArrayList<IApproachInterface> m_approaches;
 
-    private ApproachLoader () {
+    public ApproachLoader () {
         this.m_approaches = new ArrayList<>();
 
         // Get access to the class loader
@@ -60,7 +51,7 @@ public class ApproachLoader {
             Iterator<IApproachInterface> it = sl.iterator();
             while (it.hasNext()) {
                 IApproachInterface approach = it.next();
-                System.out.println("Loading: " + approach.getName());
+                System.out.println("Loading Approach: " + approach.getName() + "...");
                 this.m_approaches.add(approach);
             }
 

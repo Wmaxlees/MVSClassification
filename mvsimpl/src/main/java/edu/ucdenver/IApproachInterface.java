@@ -15,7 +15,7 @@ public abstract class IApproachInterface {
     protected Configuration config;
     protected void loadConfigurationFile (String approachName) {
         // Load the algorithm config file
-        String configFilePath = System.getProperty("user.dir") + "/config/" + approachName + ".csv";
+        String configFilePath = System.getProperty("user.dir") + "/config/" + approachName + ".properties";
         this.config = new Configuration(configFilePath);
     }
 

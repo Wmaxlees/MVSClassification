@@ -102,11 +102,11 @@ public class FrequentPatternBased extends IApproachInterface {
 
     public ArrayList<HashMap> getBlockRepresentationForIndividual(ArrayList<HashMap> ind, String name) {
 
-        ArrayList<HashMap> toReturn = new ArrayList<HashMap>();
+        ArrayList<HashMap> toReturn = new ArrayList<>();
         HashMap<String, Double> blockAttributes = getBlockAttributes(ind);
 
         for (int i = 0; i < ind.size(); i++) {
-            HashMap<String, Double> blockLocations = new HashMap<String, Double>();
+            HashMap<String, Double> blockLocations = new HashMap<>();
             Object[] datapoints = ind.get(i).keySet().toArray();
             toWrite += getFrameDetails(name, ind, i, ("" + ind.get(i).get(datapoints[0])).split(";"), blockAttributes);
             for (int j = 0; j < datapoints.length; j++) {
@@ -199,7 +199,7 @@ public class FrequentPatternBased extends IApproachInterface {
 
     public HashMap<String, Integer> performFrequencyCount(HashMap<String, Integer> currentSet, ArrayList<HashMap> blockRepresentation) {
         String[] currentPatterns = currentSet.keySet().toArray(new String[0]);
-        double winsize = this.config.getInt("SidingWindowSize");
+        double winsize = this.config.getInt("SlidingWindowSize");
         for (int i = 0; i < currentPatterns.length; i++) {
             String[] jtArr = currentPatterns[i].split("=");
             for (int j = 0; j < blockRepresentation.size() - winsize; j++) {
@@ -292,7 +292,7 @@ public class FrequentPatternBased extends IApproachInterface {
 
     @Override
     public HashMap trainApproach(Individual[] trainingDataSet) {
-        HashMap<String, HashMap> patterns = new HashMap<String, HashMap>();
+        HashMap<String, HashMap> patterns = new HashMap<>();
         for (int i = 0; i < trainingDataSet.length; i++) {//for every individual
             System.out.println("Training " + i);
             patterns.put(trainingDataSet[i].getName(), (getPatterns(trainingDataSet[i])));

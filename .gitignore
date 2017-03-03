@@ -11,3 +11,6 @@ nbproject/
 # Build Stuff
 **/target
 mvsui/bin/*.jar
+
+# Experimental Results
+mvsui/results/*.csv
