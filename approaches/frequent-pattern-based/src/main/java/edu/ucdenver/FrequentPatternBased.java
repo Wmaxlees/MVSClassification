@@ -1,9 +1,12 @@
 package edu.ucdenver;
 
+import edu.ucdenver.data.DataClass;
+import edu.ucdenver.data.ResultSet;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class FrequentPatternBased extends IApproachInterface {
+public class FrequentPatternBased extends IApproach {
     public FrequentPatternBased () {
         this.loadConfigurationFile(this.getName());
     }
@@ -12,7 +15,7 @@ public class FrequentPatternBased extends IApproachInterface {
 
     public String getFirstLine() {
         String toReturn = "";
-        toReturn = "Individual,FrameNumber,";
+        toReturn = "DataClass,FrameNumber,";
         for (int i = 0; i < 8; i++) {
             toReturn += "CubeEndPoint" + i + "(X),";
             toReturn += "CubeEndPoint" + i + "(Y),";
@@ -211,9 +214,9 @@ public class FrequentPatternBased extends IApproachInterface {
         return applyMinSup(currentSet);
     }
 
-    public HashMap<String, HashMap> getPatterns(Individual incoming) {
+    public HashMap<String, HashMap> getPatterns(DataClass incoming) {
         ArrayList<HashMap> individual = incoming.getFrames();
-        ArrayList<HashMap> blockRepresentation = getBlockRepresentationForIndividual(individual, incoming.getName());
+        ArrayList<HashMap> blockRepresentation = getBlockRepresentationForIndividual(individual, incoming.getLabel());
         HashMap<String, HashMap> allPatterns = new HashMap<String, HashMap>();
         HashMap<String, Integer> currentSet = getOneItemSet(blockRepresentation);
         int patternSizeCounter = 2;
@@ -291,11 +294,11 @@ public class FrequentPatternBased extends IApproachInterface {
     }
 
     @Override
-    public HashMap trainApproach(Individual[] trainingDataSet) {
+    public HashMap trainApproach(DataClass[] trainingDataSet) {
         HashMap<String, HashMap> patterns = new HashMap<>();
         for (int i = 0; i < trainingDataSet.length; i++) {//for every individual
             System.out.println("Training " + i);
-            patterns.put(trainingDataSet[i].getName(), (getPatterns(trainingDataSet[i])));
+            patterns.put(trainingDataSet[i].getLabel(), (getPatterns(trainingDataSet[i])));
         }
 
         return patterns;
@@ -497,7 +500,7 @@ public class FrequentPatternBased extends IApproachInterface {
     public String[][] results;
 
     @Override
-    public Accuracy testDataSetUsingApproach (HashMap hm, Individual[] testingDataSet) {
+    public ResultSet testDataSetUsingApproach (HashMap hm, DataClass[] testingDataSet) {
 
         System.out.println("--------------------");
         buildTFIDF(hm);
@@ -524,11 +527,11 @@ public class FrequentPatternBased extends IApproachInterface {
                     closest = keys[k] + "";
                 }
             }
-            results[i][0] = testingDataSet[i].getName();
+            results[i][0] = testingDataSet[i].getLabel();
             results[i][1] = closest;
             System.out.println("--------" + results[i][0] + "-------" + results[i][1]);
         }
-        return new Accuracy(results);
+        return new ResultSet(results);
     }
 
     @Override

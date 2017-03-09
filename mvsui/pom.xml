@@ -5,7 +5,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>edu.ucdenver</groupId>
+  <groupId>edu.ucdenver.mvsui</groupId>
   <artifactId>mvsui</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
@@ -26,11 +26,11 @@
     </dependency>
 
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.5</version>
     </dependency>
+
 
   </dependencies>
 
@@ -41,7 +41,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>edu.ucdenver.ExecuteExperiment</mainClass>
+              <mainClass>edu.ucdenver.mvsui.ExecuteExperiment</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>

@@ -1,4 +1,4 @@
-package edu.ucdenver;
+package edu.ucdenver.util;
 
 import java.io.*;
 import java.util.Properties;
@@ -6,7 +6,7 @@ import java.util.Properties;
 /**
  * Created by max on 3/1/17.
  */
-public class Configuration {
+public class Configuration implements Serializable {
     private Properties values;
 
     public Configuration (String configurationFilename) {
@@ -59,6 +59,19 @@ public class Configuration {
         } else {
             values.replace(key, value);
         }
+    }
+
+    public String toCSV () {
+        String result = "";
+
+        for (Object key :this.values.keySet()) {
+            String strKey = (String)key;
+            result += strKey + "," +
+                    this.values.getProperty(strKey) +
+                    ",\n";
+        }
+
+        return result;
     }
 
 }

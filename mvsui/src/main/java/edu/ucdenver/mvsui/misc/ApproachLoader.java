@@ -1,6 +1,6 @@
-package edu.ucdenver.Misc;
+package edu.ucdenver.mvsui.misc;
 
-import edu.ucdenver.IApproachInterface;
+import edu.ucdenver.IApproach;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -18,11 +18,15 @@ public class ApproachLoader {
         return this.m_approaches.size();
     }
 
-    public ArrayList<IApproachInterface> getApproaches() {
+    public ArrayList<IApproach> getApproaches () {
         return this.m_approaches;
     }
 
-    private ArrayList<IApproachInterface> m_approaches;
+    public IApproach getApproach (int index) {
+        return this.m_approaches.get(index);
+    }
+
+    private ArrayList<IApproach> m_approaches;
 
     public ApproachLoader () {
         this.m_approaches = new ArrayList<>();
@@ -46,12 +50,12 @@ public class ApproachLoader {
             jars.toArray(urlArray);
 
             URLClassLoader urlClassLoader = URLClassLoader.newInstance(urlArray, Thread.currentThread().getContextClassLoader());
-            ServiceLoader<IApproachInterface> sl = ServiceLoader.load(IApproachInterface.class, urlClassLoader);
+            ServiceLoader<IApproach> sl = ServiceLoader.load(IApproach.class, urlClassLoader);
 
-            Iterator<IApproachInterface> it = sl.iterator();
+            Iterator<IApproach> it = sl.iterator();
             while (it.hasNext()) {
-                IApproachInterface approach = it.next();
-                System.out.println("Loading Approach: " + approach.getName() + "...");
+                IApproach approach = it.next();
+                System.out.println("Loading Approach: " + approach.getName());
                 this.m_approaches.add(approach);
             }
 

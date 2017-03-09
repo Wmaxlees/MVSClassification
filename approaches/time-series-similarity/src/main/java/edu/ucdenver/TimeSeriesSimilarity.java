@@ -5,6 +5,10 @@
  */
 package edu.ucdenver;
 
+import edu.ucdenver.data.DataClass;
+import edu.ucdenver.data.ResultSet;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,18 +16,28 @@ import java.util.HashMap;
  *
  * @author siddh
  */
-public class TimeSeriesSimilarity extends IApproachInterface {
+public class TimeSeriesSimilarity extends IApproach {
+
+    private int depth;
+    private int numberOfSequences;
 
     public TimeSeriesSimilarity () {
         this.loadConfigurationFile(this.getName());
     }
 
     public String toWrite="DistanceFrom,DistanceTo,Distance,\r\n";
+
     @Override
-    public HashMap trainApproach(Individual[] trainingDataSet) {
+    public void initialize (int depth, int numberOfSequences) {
+        this.depth = depth;
+        this.numberOfSequences = numberOfSequences;
+    }
+
+    @Override
+    public void train (DataClass[] trainingDataSet) {
         HashMap dataset = new HashMap();
         for (int i = 0; i < trainingDataSet.length; i++) {
-            dataset.put(trainingDataSet[i].getName(), trainingDataSet[i].getFrames());
+            dataset.put(trainingDataSet[i].getLabel(), trainingDataSet[i].getFrames());
         }
         return dataset;
     }
@@ -124,9 +138,10 @@ public class TimeSeriesSimilarity extends IApproachInterface {
 
         return Math.sqrt(dist);
     }
+
     public String[][]results;
     @Override
-    public Accuracy testDataSetUsingApproach(HashMap hm, Individual[] testingDataSet) {
+    public ResultSet test (DataClass[] testingDataSet) {
         results = new String[testingDataSet.length][2];
         for (int i = 0; i < testingDataSet.length; i++) {
             double mindist = Double.MAX_VALUE;
@@ -140,21 +155,21 @@ public class TimeSeriesSimilarity extends IApproachInterface {
                     //DTW or DMW
                     diff=getDTWDist(testingDataSet[i].getFrames(), (ArrayList) hm.get(trainingNames[j]));
                 }
-                toWrite+=testingDataSet[i].getName()+","+trainingNames[j]+","+diff+"\r\n";
+                toWrite+=testingDataSet[i].getLabel()+","+trainingNames[j]+","+diff+"\r\n";
                 if(diff<mindist){
                     mindist=diff;
                     predicted=""+trainingNames[j];
                 }
             }
 
-            results[i][0]=testingDataSet[i].getName();
+            results[i][0]=testingDataSet[i].getLabel();
             results[i][1]=predicted;
 
         }
         for(int i=0;i<results.length;i++){
             System.out.println("---------"+results[i][0]+"-----"+results[i][1]);
         }
-        return new Accuracy(results);
+        return new ResultSet(results);
     }
 
     @Override
@@ -163,12 +178,7 @@ public class TimeSeriesSimilarity extends IApproachInterface {
     }
 
     @Override
-    public String[][] getActualAndPredicted() {
-        return results;
-    }
+    public void writeDetails (String filename) throws IOException {
 
-    @Override
-    public String getFeaturesToWrite() {
-        return toWrite;
     }
 }

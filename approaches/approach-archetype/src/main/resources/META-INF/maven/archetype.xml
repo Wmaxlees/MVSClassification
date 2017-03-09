@@ -6,6 +6,6 @@
         <source>src/main/java/Approach.java</source>
     </sources>
     <resources>
-        <resource>src/main/resources/META-INF/services/edu.ucdenver.IApproachInterface</resource>
+        <resource>src/main/resources/META-INF/services/edu.ucdenver.IApproach</resource>
     </resources>
 </archetype>
