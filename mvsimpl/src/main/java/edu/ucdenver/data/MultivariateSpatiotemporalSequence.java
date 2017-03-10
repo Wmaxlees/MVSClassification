@@ -1,9 +1,7 @@
 package edu.ucdenver.data;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+
 import org.jblas.DoubleMatrix;
 
 /**
@@ -130,5 +128,59 @@ public class MultivariateSpatiotemporalSequence {
      */
     public int getNumberOfSequences () {
         return this.data[0].rows;
+    }
+
+    /**
+     * Write the MVS to a set of files that can the be reloaded. The
+     * format is as follows:
+     *
+     * There will be one .mvs file
+     *
+     * int - depth of data (ex. 3 for 3D data) There should be an equal number of files
+     *
+     * ** Repeat for each layer
+     * int - length of filename of layer file
+     * char+ - layer file name
+     * **
+     *
+     * int - number of chars in label
+     * char+ - The label (the length should match the previous int)
+     *
+     * There will be several layer files per .mvs file based on the number of layers
+     * in the MVS.
+     *
+     * @param baseFilename
+     * @throws IOException
+     */
+    public void save (String folder, String baseFilename) throws IOException {
+        // Generate the filenames
+        String[] filenames = new String[this.getDepth()];
+        for (int i = 0; i < filenames.length; ++i) {
+            filenames[i] = baseFilename + "." + i;
+        }
+
+        // Save the layer files
+        for (int i = 0; i < this.getDepth(); ++i) {
+            this.data[i].save(folder + "/" + filenames[i]);
+        }
+
+        // Write the metadata file
+        File metadataFile = new File(folder + "/" + baseFilename + ".mvs");
+        DataOutputStream metadataStream = new DataOutputStream(new FileOutputStream(metadataFile));
+
+        // Write the mvs depth
+        metadataStream.writeInt(this.getDepth());
+
+        // Write the filenames
+        for (String filename : filenames) {
+            metadataStream.writeInt(filename.length());
+            metadataStream.writeChars(filename);
+        }
+
+        // Write the label
+        metadataStream.writeInt(label.length());
+        metadataStream.writeChars(label);
+
+        metadataStream.close();
     }
 }

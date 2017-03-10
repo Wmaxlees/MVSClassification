@@ -19,6 +19,8 @@ import java.io.Serializable;
  */
 public abstract class IApproach implements Serializable {
     protected Configuration config;
+    protected int expectedDepth;
+    protected int expectedNumberOfSequences;
 
     /**
      * This function will be called in order to perform any necessary
@@ -27,7 +29,10 @@ public abstract class IApproach implements Serializable {
      * @param depth The depth of the input data
      * @param numberOfSequences The number of sequences to expect in the MVS
      */
-    public abstract void initialize (int depth, int numberOfSequences);
+    public void initialize (int depth, int numberOfSequences) {
+        this.expectedDepth = depth;
+        this.expectedNumberOfSequences = numberOfSequences;
+    }
 
     /**
      * Must be called in the constructor if the approach will use a config file

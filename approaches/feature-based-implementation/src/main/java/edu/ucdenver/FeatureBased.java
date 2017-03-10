@@ -19,8 +19,6 @@ import java.io.IOException;
  */
 public class FeatureBased extends IApproach {
     private String workingDirectory;
-    private int dataDepth;
-    private int numberOfSequences;
 
     /**
      * Constructor
@@ -33,12 +31,6 @@ public class FeatureBased extends IApproach {
     }
 
     @Override
-    public void initialize (int depth, int numberOfSequences) {
-        this.dataDepth = depth;
-        this.numberOfSequences = numberOfSequences;
-    }
-
-    @Override
     public void train (DataClass[] trainingDataSet) {
         boolean useRange = this.config.getBoolean("UseRange");
         boolean useMean = this.config.getBoolean("UseMean");
@@ -46,7 +38,7 @@ public class FeatureBased extends IApproach {
 
         for (DataClass dc : trainingDataSet) {
             // Make sure the data matches what is expected
-            if (dc.getDepth() != this.dataDepth || dc.getNumberOfSequences() != numberOfSequences) {
+            if (dc.getDepth() != this.expectedDepth || dc.getNumberOfSequences() != this.expectedNumberOfSequences) {
                 System.out.println("Input data does not match expected dimensions: " + dc.getLabel());
                 continue;
             }
@@ -118,24 +110,24 @@ public class FeatureBased extends IApproach {
         String line = "DataClass,";
 
         if (this.config.getBoolean("UseRange")) {
-            for (int sequence = 0; sequence < this.numberOfSequences; ++sequence) {
-                for (int depth = 0; depth < this.dataDepth; ++depth) {
+            for (int sequence = 0; sequence < this.expectedNumberOfSequences; ++sequence) {
+                for (int depth = 0; depth < this.expectedDepth; ++depth) {
                     line += "Range_" + sequence + "_(" + depth + "),";
                 }
             }
         }
 
         if (this.config.getBoolean("UseMean")) {
-            for (int sequence = 0; sequence < this.numberOfSequences; ++sequence) {
-                for (int depth = 0; depth < this.dataDepth; ++depth) {
+            for (int sequence = 0; sequence < this.expectedNumberOfSequences; ++sequence) {
+                for (int depth = 0; depth < this.expectedDepth; ++depth) {
                     line += "Mean_" + sequence + "_(" + depth + "),";
                 }
             }
         }
 
         if (this.config.getBoolean("UseStandardDeviation")) {
-            for (int sequence = 0; sequence < this.numberOfSequences; ++sequence) {
-                for (int depth = 0; depth < this.dataDepth; ++depth) {
+            for (int sequence = 0; sequence < this.expectedNumberOfSequences; ++sequence) {
+                for (int depth = 0; depth < this.expectedDepth; ++depth) {
                     line += "StandardDeviation_" + sequence + "_(" + depth + "),";
                 }
             }
