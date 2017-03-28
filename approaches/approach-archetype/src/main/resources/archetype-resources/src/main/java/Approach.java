@@ -1,35 +1,35 @@
 package ${groupId};
 
-import edu.ucdenver.Accuracy;
-import edu.ucdenver.IApproachInterface;
-import edu.ucdenver.Individual;
+import edu.ucdenver.data.ResultSet;
+import edu.ucdenver.data.DataClass;
+import edu.ucdenver.IApproach;
 
-import java.util.HashMap;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
-public class Approach extends IApproachInterface {
+public class Approach extends IApproach {
     public Approach () {
         this.loadConfigurationFile(this.getName());
     }
 
-    public String[][] getActualAndPredicted () {
-        return new String[1][1];
+    @Override
+    public void train (DataClass[] trainingDataSet) {}
+
+    @Override
+    public ResultSet test (DataClass[] testingDataSet) {
+        return new ResultSet();
     }
 
-    public String getFeaturesToWrite () {
-        return new String();
-    }
-
-    public HashMap trainApproach (Individual[] trainingDataSet) {
-        return new HashMap();
-    }
-
-    public Accuracy testDataSetUsingApproach (HashMap hm, Individual[] testingDataSet) {
-        return new Accuracy(new String[1][1]);
-    }
-
+    @Override
     public String getName() {
-        return new String();
+        return "ApproachName";
     }
 
+    @Override
+    public void writeDetails (String filename) throws IOException {
+        BufferedWriter out = new BufferedWriter(new FileWriter(filename));
 
+        out.close();
+    }
 }

@@ -8,6 +8,8 @@ package edu.ucdenver.mvsui;
 import edu.ucdenver.IApproach;
 import edu.ucdenver.mvsui.misc.*;
 import edu.ucdenver.util.Configuration;
+import edu.ucdenver.mvsui.misc.Data.DataBuilder;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -15,6 +17,7 @@ import java.io.*;
 /**
  *
  * @author siddh
+ * @author W. Max Lees
  */
 public class ExecuteExperiment {
 
@@ -25,10 +28,10 @@ public class ExecuteExperiment {
     public static void main (String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         System.out.println("Starting Evaluation\n------------------\n");
 
+        cleanup();
         initializeExperiments();
         ResultContainer rc = executeExperiments();
         reportResults(rc);
-        cleanup();
     }
 
     public static void initializeExperiments () {
@@ -41,18 +44,15 @@ public class ExecuteExperiment {
         System.out.println("Searching for approaches...\n");
         approachLoader = new ApproachLoader();
 
-        try {
-            String dataPath = config.getString("DataPath");
-            int trainingSetSize = config.getInt("TrainingSetSize");
-            int testingSetSize = config.getInt("TestingSetSize");
-
-            System.out.println("\nLoading data set from: " + dataPath);
-            data = new Data(config.getInt("DataDepth"), config.getInt("NumberOfSequences"));
-            data.loadDataSet(dataPath, trainingSetSize, testingSetSize);
-        } catch (FileNotFoundException e) {
-            System.err.println("Failed to load data set");
-            e.printStackTrace(System.err);
-        }
+        String dataPath = config.getString("DataPath");
+        System.out.println("\nSetting data set path: " + dataPath);
+        data = new DataBuilder()
+                .setDataPath(dataPath)
+                .setBatchSize(config.getInt("BatchSize"))
+                .setDepth(config.getInt("DataDepth"))
+                .setNumberOfSequences(config.getInt("NumberOfSequences"))
+                .setTestingSetSize(config.getInt("TestSetSize"))
+                .build();
 
         for (IApproach approach : approachLoader.getApproaches()) {
             approach.initialize(data.getDepth(), data.getNumberOfSequences());
@@ -67,22 +67,38 @@ public class ExecuteExperiment {
         for (int i = 0; i < approachLoader.getNumberOfApproaches(); ++i) {
             IApproach approach = approachLoader.getApproach(i);
 
-            System.out.println("\n\nExecuting: " + approach.getName());
-            System.out.println("Training...");
+            System.out.println("\n\nTraining: " + approach.getName());
             results.setLabel(i, approach.getName());
 
-            // Run training and get the training time
-            long tStart = System.currentTimeMillis();
-            approach.train(data.getTrainingSet());
-            results.setTrainingTime(i, System.currentTimeMillis() - tStart);
+            long trainingTime = 0;
+            int iteration = 1;
+            while (ExecuteExperiment.data.loadNextTrainingBatch()) {
+                System.out.println("Batch [" + iteration++ + "]");
+
+                // Run training and get the training time
+                long tStart = System.currentTimeMillis();
+                approach.train(data.getCurrentTrainingSet());
+                trainingTime += System.currentTimeMillis() - tStart;
+            }
+            results.setTrainingTime(i, trainingTime);
 
             // Get the size of the model
             System.out.println("Calculating memory footprint...");
             results.setSize(i, UtilityClass.getMemoryRequiredByLearningModule(approach));
 
+            // Reset the training data
+            data.rewind();
+        }
+
+        System.out.println("\n\nLoading testing set...");
+        data.loadTestingSet();
+
+        for (int i = 0; i < approachLoader.getNumberOfApproaches(); ++i) {
+            IApproach approach = approachLoader.getApproach(i);
+
             // Run the test and get the timing
-            System.out.println("Testing...");
-            tStart = System.currentTimeMillis();
+            System.out.println("\n\nTesting: " + approach.getName());
+            long tStart = System.currentTimeMillis();
             results.setResults(i, approach.test(data.getTestingSet()));
             results.setTestingTime(i, System.currentTimeMillis() - tStart);
         }
@@ -113,26 +129,5 @@ public class ExecuteExperiment {
         } catch (IOException e) {
             System.err.println("Failed to clear temp directory");
         }
-    }
-
-    private static boolean deleteDirectory(File directory) {
-        if (directory.exists()) {
-            // Get files
-            File[] files = directory.listFiles();
-
-            // Check if it has any subfiles
-            if (files != null){
-
-                for (int i = 0; i < files.length; ++i) {
-                    if (files[i].isDirectory()) {
-                        deleteDirectory(files[i]);
-                    } else {
-                        files[i].delete();
-                    }
-                }
-            }
-        }
-
-        return directory.delete();
     }
 }

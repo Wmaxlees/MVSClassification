@@ -1,17 +1,30 @@
 package edu.ucdenver.data;
 
 import java.io.*;
+import java.util.Arrays;
 
+import edu.ucdenver.exceptions.MismatchedDataException;
 import org.jblas.DoubleMatrix;
 
 /**
  * Created by max on 3/3/17.
  */
 public class MultivariateSpatiotemporalSequence {
-    private DoubleMatrix[]  data;
-    private String          label;
+    protected DoubleMatrix[]  data;
+    protected String          label;
 
-    private MultivariateSpatiotemporalSequence () {}
+    protected MultivariateSpatiotemporalSequence () {}
+
+    /**
+     * Constructor should only be used if you know what you're doing.
+     *
+     * @param data The actual data. Each index should be for a different depth
+     * @param label The label for the MVS
+     */
+    public MultivariateSpatiotemporalSequence (DoubleMatrix[] data, String label) {
+        this.data = data;
+        this.label = label;
+    }
 
     /**
      * Create a brand new MultivariateSpatiotemporalSequence from a '.mvs' file specified
@@ -70,6 +83,31 @@ public class MultivariateSpatiotemporalSequence {
     }
 
     /**
+     * Create a new MVS from a set of DoubleMatrix. Each DoubleMatrix represents
+     * a layer. They should all have the same shape.
+     *
+     * @param label The label for the new MVS
+     * @param matrices The matrices
+     * @return The new MVS
+     */
+    public static MultivariateSpatiotemporalSequence fromMatrices (String label, DoubleMatrix[] matrices) {
+        MultivariateSpatiotemporalSequence mvs = new MultivariateSpatiotemporalSequence();
+        mvs.data = matrices;
+        mvs.label = label;
+
+        return mvs;
+    }
+
+    /**
+     * Get the raw double matrix data from the MVS
+     *
+     * @return A Double Matrix array
+     */
+    public DoubleMatrix[] getData () {
+        return this.data;
+    }
+
+    /**
      * Get the depth of the data
      *
      * @return The depth
@@ -92,6 +130,30 @@ public class MultivariateSpatiotemporalSequence {
         }
 
         return result;
+    }
+
+    /**
+     * Sets a specific frame with the given input double matrices.
+     * The shape of the input matrix must match shape of a frame
+     * in the MVS
+     *
+     * @param in Frame to replace
+     */
+    public void setFrame (int frameIndex, DoubleMatrix[] in) {
+        // Check if the depth of input and mvs data are the same
+        if (in.length != this.data.length) {
+            throw new MismatchedDataException();
+        }
+
+        // Check if the index exists
+        if (this.getNumberOfFrames() <= frameIndex) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        // Set the values
+        for (int depth = 0; depth < in.length; ++depth) {
+            this.data[depth].putColumn(frameIndex, in[depth]);
+        }
     }
 
     /**
@@ -128,6 +190,20 @@ public class MultivariateSpatiotemporalSequence {
      */
     public int getNumberOfSequences () {
         return this.data[0].rows;
+    }
+
+    public DoubleMatrix[] getSequence (int sequenceIndex) {
+        if (sequenceIndex >= this.getNumberOfSequences()) {
+            System.err.println("Attempting to access sequence that doesn't exist");
+            throw new IndexOutOfBoundsException();
+        }
+
+        DoubleMatrix[] result = new DoubleMatrix[this.getDepth()];
+        for (int depth = 0; depth < this.getDepth(); ++depth) {
+            result[depth] = this.data[depth].getRow(sequenceIndex);
+        }
+
+        return result;
     }
 
     /**
@@ -182,5 +258,19 @@ public class MultivariateSpatiotemporalSequence {
         metadataStream.writeChars(label);
 
         metadataStream.close();
+    }
+
+    @Override
+    public String toString () {
+        String result = "";
+
+        for (DoubleMatrix dm : this.data) {
+            double[][] arr = dm.toArray2();
+            for (int i = 0; i < arr.length; ++i) {
+                result += Arrays.toString(arr[i]) + "\n";
+            }
+        }
+
+        return result;
     }
 }
