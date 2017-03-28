@@ -49,3 +49,22 @@ The actual value to store. The value must match the type. There is no checking r
 Example:  
 `NumberOfKittens,int,10000000`  
 This will be accessable inside the IApproachInterface implementation as `this.config.getInt("NumberOfKittens")` and will return `10000000`
+
+# Running the Test Bed
+
+## Build mvsimpl Project
+1. Clone the repository
+1. Navigate to the mvsimpl folder
+1. Execute: `mvn install -DskipTests`
+
+## Building Approaches
+1. For each approach, in the base approach folder, execute `mvn package`
+1. For each approach, copy the **uber-\*\*.jar** file to `/mvsui/bin` folder
+1. For each approach, copy the **${name-of-approach}.properties** file in `/mvsui/config` with any configuration you need
+
+## Build the mvsui Project
+1. Navigate to the mvsui folder
+1. Execute: `mvn install -DskipTests`
+
+## Run the Test Bed
+1. Execute: `java -jar target/mvsui-${version}-jar-with-dependencies.jar`
